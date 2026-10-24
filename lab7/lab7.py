@@ -1,4 +1,3 @@
-"""Лабораторна 7 — Згортка (Python + NumPy; Pillow, scikit-image, OpenCV)."""
 import time
 import numpy as np
 from PIL import Image
@@ -6,7 +5,6 @@ from skimage import data
 import cv2
 
 
-# ---------- Завдання 1: функція згортки ----------
 def conv2(img, K):
     kh, kw = K.shape
     ph, pw = kh // 2, kw // 2
@@ -26,22 +24,18 @@ def save(arr, path):
     print('   збережено:', path)
 
 
-# ---------- Завдання 2: три фільтри ----------
 def gauss1d(sigma, n):
     x = np.arange(n) - n // 2
     k = np.exp(-x ** 2 / (2 * sigma ** 2))
-    return k / k.sum()                  # нормування: сума стає 1
+    return k / k.sum()             
 
 
-# ---------- Завдання 3: роздільне розмиття ----------
 def conv_sep(img, k):
     n = len(k) // 2
-    # прохід по горизонталі
     pad = np.pad(img, ((0, 0), (n, n)), mode='edge')
     tmp = np.zeros_like(img)
     for j, v in enumerate(k):
         tmp += v * pad[:, j:j + img.shape[1]]
-    # прохід по вертикалі
     pad = np.pad(tmp, ((n, n), (0, 0)), mode='edge')
     out = np.zeros_like(img)
     for i, v in enumerate(k):
@@ -65,20 +59,20 @@ if __name__ == "__main__":
     save(gray, 'original.png')
 
     k = gauss1d(1.6, 7)
-    BLUR = np.outer(k, k)               # двовимірне ядро 7×7
+    BLUR = np.outer(k, k)
     blur = conv2(gray, BLUR)
     save(blur, 'blur.png')
 
     SX = np.array([[-1, 0, 1],
                    [-2, 0, 2],
                    [-1, 0, 1]], float)
-    SY = SX.T                           # шукає горизонтальні краї
+    SY = SX.T
     gx, gy = conv2(gray, SX), conv2(gray, SY)
-    edges = np.hypot(gx, gy)            # корінь із суми квадратів
-    edges = edges / edges.max() * 255   # розтягнути в 0…255 для показу
+    edges = np.hypot(gx, gy)
+    edges = edges / edges.max() * 255  
     save(edges, 'sobel.png')
 
-    detail = gray - blur                # самі лише дрібні деталі
+    detail = gray - blur         
     sharp = np.clip(gray + 1.2 * detail, 0, 255)
     save(sharp, 'sharp.png')
 
